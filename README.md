@@ -6,34 +6,63 @@ This README outlines the structure and main components of the project.
 
 - `api/`
   - `routes.py`: Implementation of the API routes.
+  - `views.py`: Logic for handling requests for each endpoint.
+  - `errors.py`: Custom error handlers for API responses.
+
 - `app/`
   - `crawler/`
     - `nyt_headlines.py`: Actual crawling execution
   - `models/`
-    - `execution_info_schema.py`: Contains the schema for the `execution_info` collection. (Details of the schema structure are included in the file.)
-  - `rest_client.py`: Module containing the REST client for API calls.
-  - `tasks.py`: Contains the Celery tasks for asynchronous execution.
-- `broker/`: 
-- `ci_cd/`: 
+    - `execution_info_schema.py`: Contains the schema for the `execution_info` collection.
+  - `rest_client.py`: Client for making external REST calls.
+  - `tasks.py`: Celery background tasks definitions.
+
+- `broker/`
+  - `celery_config.py`: Configuration for Celery workers and task queues.
+
+- `ci_cd/`
+  - `.gitlab-ci.yml`: GitLab CI/CD configuration file.
+  - `.github/`
+    - `workflows/`
+      - `main.yml`: GitHub Actions workflow for CI/CD.
+
 - `config/`
   - `config.json`: Basic configuration for the bot, including the URL to be crawled.
-  - `settings.py`: Settings for the application, including database and URL configurations.
-- `envs/`: 
-- `logs/`: 
-- `monitoring/`: 
+  - `settings.py`: Application settings including DB, broker, and storage config.
+  - `logging_config.py`: Configuration for JSON structured logging.
+
+- `envs/`
+  - `development/`, `staging/`, `production/`: Environment-specific Docker and configuration files, including `Dockerfile` and `docker-compose.yml` for each environment.
+
+- `logs/`
+
+- `monitoring/`
+  - `metrics.py`: Metrics collection for monitoring tools like Prometheus.
+
+- `storage/`
+  - `cloud_storage.py`: Abstraction for cloud storage interactions (e.g., AWS S3).
+
 - `tests/`
-  - `integration/`: 
-  - `unit/`
-    - `conftest.py`: 
-    - `test_database.py`: 
+  - `unit/`: Unit tests for individual modules/functions.
+  - `integration/`: Integration tests to test endpoints and integration.
+
 - `utils/`
   - `config_loader.py`: Function to load bot configuration from a JSON file.
+
+- `main.py`: Main module and entry point of the application; loads configuration and starts the API.
+
+- `requirements.txt`: Lists all the Python dependencies for the project.
 - `.env`: Environment variables for the application, including the database connection string.
 - `.env.example`: Example template of the `.env` file.
-- `main.py`: Main module and entry point of the application; loads configuration and starts the API.
 - `pytest.ini`: Configuration file for pytest.
+
 - `README.md`: This file.
-- `requirements.txt`: Lists all the Python dependencies for the project.
+
+- `.gitignore`: To avoid committing logs to the repository.
+- `.pre-commit-config.yaml`: Pre-commit hook configuration file.
+
+- `Dockerfile`: Base Dockerfile (for development or as a template for others).
+- `docker-compose.yml`: Base Docker Compose configuration (for development).
 
 ## Schema Structure for `execution_info`
 
