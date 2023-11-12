@@ -1,0 +1,4 @@
+bots-env/
+.env
+*/__pycache__/*
+tests/unit/__pycache__/*
