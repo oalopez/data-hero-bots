@@ -5,27 +5,50 @@ Contains the Celery tasks to be executed asynchronously.
 # /app/tasks.py
 from celery import Celery
 from app.crawler.bot import WebCrawler  # Import your specific web crawling class or method
-from app.models.execution_info_schema import ExecutionInfo  # Import your ODM model for MongoDB
+from app.models.execution_info_schema import ExecutionInfo, FileData  # Import your ODM model for MongoDB
+from utils.encoders import CustomEncoder  # Import the custom encoder for MongoDB
+from datetime import datetime
+import json
+import config.settings as settings
 
 # Configure Celery (make sure to appropriately configure Celery elsewhere, e.g., in a separate config file)
 celery_app = Celery('tasks', broker='redis://localhost:6379/0')  # Adjust the broker URL as necessary
 
 @celery_app.task
 def execute_crawl_task():
-    crawler = WebCrawler()  # Instantiate your crawler class
+    crawler = WebCrawler(bot_name=settings.BOT_NAME, start_url=settings.URL_CRAWLED)  # Instantiate your crawler class
     execution_data = crawler.start_crawl()  # Start the web crawling process
 
-    # Save completion info to MongoDB
+    print("Execution Data: " + json.dumps(execution_data, cls=CustomEncoder))
+
     execution_info = ExecutionInfo(
-        execution_id=execute_crawl_task.request.id,  # Retrieve task id from Celery
-        status='completed',
+        bot_name=execution_data['bot_name'],
+        status=execution_data['status'], 
         start_time=execution_data['start_time'],
         end_time=execution_data['end_time'],
-        data_file_path=execution_data['file_path']  # Update with appropriate file path or reference
+        url_crawled=execution_data['url_crawled'],  # Replace with the actual URL that was crawled
+        files=[FileData(
+            file_type='csv',  # Replace with actual file type
+            file_location=execution_data['file_path'],  # Update with appropriate file path
+            metadata='Data extracted on {}'.format(datetime.now().isoformat())  # Replace with actual metadata
+        )]
     )
-    execution_info.save()  # Persist the information to MongoDB
 
-    return execution_info.to_mongo().to_dict()
+    execution_info.save()  # Persist the information to MongoDB
+    print("Data saved to MongoDB")
+
+    # No need of the return statement since the data is already persisted to MongoDB
+    # and we are not calling this task from another task
+
+    #execution_info_dict = execution_info.to_mongo().to_dict()
+    #print("Execution Info: " + json.dumps(execution_info_dict, cls=CustomEncoder))
+
+    # Any referenced Objects which are also ObjectIds should be converted likewise
+    # Assuming there are no nested ObjectId references in FileData or elsewhere
+    #execution_info_dict['_id'] = str(execution_info_dict['_id'])  # Convert ObjectId to string
+    #execution_info_dict['execution_id'] = str(execution_info_dict['execution_id'])  # Convert ObjectId to string
+
+    #return execution_info_dict
 
 def get_crawl_status(execution_id):
     try:

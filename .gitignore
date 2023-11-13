@@ -1,4 +1,7 @@
 bots-env/
 .env
-*/__pycache__/*
-tests/unit/__pycache__/*
+**/__pycache__/**
+app/crawler/__pycache__/
+dump.rdb
+data/*.csv
+.DS_Store

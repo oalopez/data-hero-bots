@@ -6,12 +6,13 @@ from fastapi import HTTPException, status
 from app.tasks import execute_crawl_task, get_crawl_status, get_crawl_history
 from utils.mapping_util import mongo_to_pydantic_exec_info
 from app.models.pydantic_execution_info import ExecutionInfo as PydanticExecutionInfo
+from config.settings import BOT_NAME, URL_CRAWLED
 
 
 def create_crawl():
     # Logic for creating new crawl task
     task = execute_crawl_task.delay()
-    return {"task_id": str(task.id), "status": "pending", "details": "Crawl task submitted"}
+    return {"task_id": str(task.id), "status": "pending", "details": "Crawl task submitted", "bot_name": BOT_NAME, "url_crawled": URL_CRAWLED}
 
 def read_crawl_status(execution_id: str):
     # Fetch the status of the crawl task

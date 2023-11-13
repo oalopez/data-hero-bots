@@ -10,3 +10,4 @@ redis==5.0.1
 requests==2.31.0
 uvicorn==0.24.0.post1
 beautifulsoup4
+flower
