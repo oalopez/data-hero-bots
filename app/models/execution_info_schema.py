@@ -53,57 +53,29 @@ class FileData(EmbeddedDocument):
     metadata = StringField()
 
 class ExecutionInfo(Document):
-    meta = {'collection': 'execution_info'}
-    
-    execution_id = ObjectIdField(required=True, primary_key=True)
+    """
+    Schema representing the execution details of a crawl task.
+    """
+    execution_id = ObjectIdField(default=lambda: ObjectId())  # If you want to use custom execution_id
     bot_name = StringField(required=True)
-    start_time = DateTimeField(required=True)
-    end_time = DateTimeField(required=True)
-    status = StringField(required=True)
+    start_time = DateTimeField(default=datetime.utcnow)
+    end_time = DateTimeField()
+    status = StringField(required=True, choices=('pending', 'running', 'completed', 'failed'))
     status_history = ListField(EmbeddedDocumentField(StatusHistory))
     audit_data = ListField(EmbeddedDocumentField(AuditData))
     files = ListField(EmbeddedDocumentField(FileData))
-    url_crawled = StringField()
-    screenshot_path = StringField()
+    url_crawled = URLField(required=True)
+    screenshot_path = StringField()  # Assuming this is the filesystem path or URL to the screenshot
 
-    def __str__(self):
-        return f"Execution Info ({self.bot_name}, {self.execution_id})"
-    
-    @classmethod
-    def start_execution(cls, bot_name):
-        execution = cls(
-            execution_id=ObjectId(),
-            bot_name=bot_name,
-            start_time=datetime.utcnow(),
-            status='Started',
-            status_history=[StatusHistory(status='Started', timestamp=datetime.utcnow())],
-            audit_data=[AuditData(user='system', action='start', timestamp=datetime.utcnow())],
-            files=[],
-            url_crawled=settings.URL_CRAWLED
-        )
-        execution.save()
-        return execution.execution_id
-    
-    # ExecutionInfo.save_headlines_to_csv(headlines, execution_id)  # Implement this function in the ODM
-    @classmethod
-    def save_headlines_to_csv(cls, headlines, execution_id):
-        # Save the headlines to a CSV file and return the file path
-        
-        # TODO: Implement this function. Should this logic be in the ODM?
-        file_path = f"/tmp/{execution_id}.csv"
-
-        return file_path
-    
-    # finish_execution(execution_id, file_path, urls_crawled)
-    @classmethod
-    def finish_execution(cls, execution_id, file_path):
-        execution = cls.objects(execution_id=execution_id).first()
-        execution.end_time = datetime.utcnow()
-        execution.status = 'Finished'
-        execution.status_history.append(StatusHistory(status='Finished', timestamp=datetime.utcnow()))
-        execution.audit_data.append(AuditData(user='system', action='finish', timestamp=datetime.utcnow()))
-        execution.files.append(FileData(file_type='csv', file_location=file_path))
-        execution.url_crawled = settings.URL_CRAWLED
-        execution.save()
+    meta = {
+        'collection': 'execution_info',
+        'indexes': [
+            'bot_name',
+            'status',
+            '-start_time',
+            # You may add other indexes based on the query patterns of your application.
+        ],
+        'ordering': ['-start_time']
+    }
     
 # TODO: status should be an enum
