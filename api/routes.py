@@ -3,8 +3,8 @@
 Implementation of the API routes.
 """
 from fastapi import APIRouter, HTTPException, Path, status
-from app import views
-from app.models.execution_info_schema import ExecutionInfo  # Replace with the correct path and model
+from app.models.pydantic_execution_info import ExecutionInfo
+import api.views as views
 
 router = APIRouter()
 

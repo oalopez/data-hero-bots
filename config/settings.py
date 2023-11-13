@@ -17,7 +17,7 @@ MONGO_PASSWORD = os.getenv('MONGO_PASSWORD')
 
 from utils.config_loader import load_config
 # Path to JSON config file
-CONFIG_PATH = "./config.json"
+CONFIG_PATH = "./config/config.json"
 # Load the configuration
 config = load_config(CONFIG_PATH)
 # Access the URL configuration from the loaded configuration dictionary

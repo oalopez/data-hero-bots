@@ -36,8 +36,6 @@ The structure of the collection is as follows:
 from mongoengine import Document, StringField, DateTimeField, ListField, ObjectIdField, EmbeddedDocumentField, EmbeddedDocument, URLField
 from bson import ObjectId
 from datetime import datetime
-from config import settings
-
 class StatusHistory(EmbeddedDocument):
     status = StringField(required=True)
     timestamp = DateTimeField(required=True)

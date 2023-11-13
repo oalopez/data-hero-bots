@@ -4,7 +4,7 @@ Contains the Celery tasks to be executed asynchronously.
 """
 # /app/tasks.py
 from celery import Celery
-from app.crawler import WebCrawler  # Import your specific web crawling class or method
+from app.crawler.bot import WebCrawler  # Import your specific web crawling class or method
 from app.models.execution_info_schema import ExecutionInfo  # Import your ODM model for MongoDB
 
 # Configure Celery (make sure to appropriately configure Celery elsewhere, e.g., in a separate config file)
@@ -25,7 +25,7 @@ def execute_crawl_task():
     )
     execution_info.save()  # Persist the information to MongoDB
 
-    return execution_info.to_json()  # Return task information as JSON
+    return execution_info.to_mongo().to_dict()
 
 def get_crawl_status(execution_id):
     try:
