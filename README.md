@@ -4,65 +4,77 @@ This README outlines the structure and main components of the project.
 
 ## Directory Breakdown
 
-- `api/`
-  - `routes.py`: Implementation of the API routes.
-  - `views.py`: Logic for handling requests for each endpoint.
-  - `errors.py`: Custom error handlers for API responses.
-
-- `app/`
-  - `crawler/`
-    - `nyt_headlines.py`: Actual crawling execution
-  - `models/`
-    - `execution_info_schema.py`: Contains the schema for the `execution_info` collection.
-  - `rest_client.py`: Client for making external REST calls.
-  - `tasks.py`: Celery background tasks definitions.
-
-- `broker/`
-  - `celery_config.py`: Configuration for Celery workers and task queues.
-
-- `ci_cd/`
-  - `.gitlab-ci.yml`: GitLab CI/CD configuration file.
-  - `.github/`
-    - `workflows/`
-      - `main.yml`: GitHub Actions workflow for CI/CD.
-
-- `config/`
-  - `config.json`: Basic configuration for the bot, including the URL to be crawled.
-  - `settings.py`: Application settings including DB, broker, and storage config.
-  - `logging_config.py`: Configuration for JSON structured logging.
-
-- `envs/`
-  - `development/`, `staging/`, `production/`: Environment-specific Docker and configuration files, including `Dockerfile` and `docker-compose.yml` for each environment.
-
-- `logs/`
-
-- `monitoring/`
-  - `metrics.py`: Metrics collection for monitoring tools like Prometheus.
-
-- `storage/`
-  - `cloud_storage.py`: Abstraction for cloud storage interactions (e.g., AWS S3).
-
-- `tests/`
-  - `unit/`: Unit tests for individual modules/functions.
-  - `integration/`: Integration tests to test endpoints and integration.
-
-- `utils/`
-  - `config_loader.py`: Function to load bot configuration from a JSON file.
-
-- `main.py`: Main module and entry point of the application; loads configuration and starts the API.
-
-- `requirements.txt`: Lists all the Python dependencies for the project.
-- `.env`: Environment variables for the application, including the database connection string.
-- `.env.example`: Example template of the `.env` file.
-- `pytest.ini`: Configuration file for pytest.
-
-- `README.md`: This file.
-
-- `.gitignore`: To avoid committing logs to the repository.
-- `.pre-commit-config.yaml`: Pre-commit hook configuration file.
-
-- `Dockerfile`: Base Dockerfile (for development or as a template for others).
-- `docker-compose.yml`: Base Docker Compose configuration (for development).
+```
+my_bot_module/
+│
+├── app/                                   # Core logic of the web crawler application
+│   ├── crawler/
+│   │   └── bot.py                         # Core web crawler logic, responsible for scraping and extracting data from specified URLs.
+│   ├── models/                            # Object-Document Mapping (ODM) models for MongoDB
+│   │   └── execution_info_schema.py       # Schema for execution_info collection in MongoDB, detailing document structure
+│   │   └── pydantic_execution_info.py     # Defines Pydantic models for execution info, ensuring type safety and validation of data before it's processed or stored.
+│   ├── rest_client.py                     # Implements a client for making REST API calls to external services
+│   └── tasks.py                           # Definitions of Celery background tasks for asynchronous operations
+│
+├── api/                                   # Handles the REST API interface of the application
+│   ├── routes.py                          # Establishes the API routes/endpoints for the application
+│   ├── views.py                           # Handles request processing logic for each API endpoint
+│   └── errors.py                          # Defines custom error handlers for consistent API error responses
+│
+├── storage/                               # Modules related to storage operations
+│   └── cloud_storage.py                   # Interface for interacting with cloud storage services like AWS S3
+│
+├── config/                                # Contains configuration files and settings
+│   ├── bot_config.json                    # JSON configuration file containing adjustable parameters for the bot.
+│   ├── settings.py                        # Central application settings like database, broker, and storage configurations
+│   └── logging_config.py                  # Sets up structured logging, potentially in JSON format
+│
+├── diagrams/
+│   └── bot-dataflow.drawio                # A visual representation of the data flow or architecture in the web crawler, editable with draw.io.
+│
+├── logs/                                  # Directory designated for log file storage
+│
+├── tests/
+│   ├── integration/                       # Contains integration tests to ensure different parts of the application work together seamlessly.
+│   └── unit/ 
+│       ├── conftest.py                    # Pytest configuration file for setting up fixtures and test environments.
+│       └── test_database.py               # Unit tests for database interactions, ensuring data integrity and proper database operations.
+│
+├── ci_cd/                                 # Holds CI/CD (Continuous Integration & Deployment) configurations
+│   ├── .gitlab-ci.yml                     # Configuration file for CI/CD pipelines in GitLab
+│   └── .github/                           # Contains GitHub Actions workflows for CI/CD
+│       └── workflows/
+│           └── main.yml                   # Main GitHub Actions workflow configuration for CI/CD processes
+│
+├── monitoring/                            # Tools and scripts for monitoring application performance
+│   └── metrics.py                         # Collects and defines metrics for monitoring, e.g., with Prometheus
+│
+├── envs/                                  # Environment-specific configurations and Docker files
+│   ├── development/
+│   │   ├── Dockerfile                     # Dockerfile for setting up a development environment
+│   │   └── docker-compose.yml             # Docker Compose configuration for development setup
+│   ├── staging/
+│   │   ├── Dockerfile                     # Dockerfile for staging environment setup
+│   │   └── docker-compose.yml             # Docker Compose configuration for the staging environment
+│   └── production/
+│       ├── Dockerfile                     # Dockerfile for production environment setup
+│       └── docker-compose.yml             # Docker Compose configuration for production deployment
+│
+├── utils/
+│   ├── config_loader.py                   # Loads and parses the bot configuration from bot_config.json, ensuring the crawler uses the correct settings.
+│   ├── encoders.py                        # Custom data encoders, likely for converting complex data types to and from formats like JSON.
+│   └── mapping_util.py                    # Utility functions for mapping or transforming data, possibly for normalizing or structuring scraped data.
+│
+├── .env                                   # Contains environment variables for the project, such as API keys and database URIs.
+├── .env.example                           # Template for the .env file, illustrating required environment variables without revealing sensitive information.
+├── Dockerfile                             # Base Dockerfile, used for development or as a template for other environments
+├── docker-compose.yml                     # Base Docker Compose file for setting up development environment
+├── main.py                                # Main entry point for starting the REST API server and Celery Worker
+├── pytest.ini                             # Configuration file for pytest, specifying options and settings for running the test suites.
+├── requirements.txt                       # Lists required Python packages for the project
+├── README.md                              # This file. Project documentation including setup and usage instructions
+└── .pre-commit-config.yaml                # Configuration for pre-commit hooks to enforce code standards before commits
+```
 
 ## Schema Structure for `execution_info`
 
@@ -70,7 +82,7 @@ The `execution_info_schema.py` file defines the following structure:
 
 ```json
 {
-    "execution_id": ObjectId,
+    "execution_id": String,
     "bot_name": String,
     "start_time": DateTime,
     "end_time": DateTime,

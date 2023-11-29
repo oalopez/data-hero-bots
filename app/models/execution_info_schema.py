@@ -3,7 +3,7 @@
 This module contains the schema for the execution_info collection.
 The structure of the collection is as follows:
 {
-    "execution_id": ObjectId,
+    "execution_id": String,
     "bot_name": String,
     "start_time": DateTime,
     "end_time": DateTime,
@@ -54,10 +54,11 @@ class ExecutionInfo(Document):
     """
     Schema representing the execution details of a crawl task.
     """
-    execution_id = ObjectIdField(default=lambda: ObjectId())  # If you want to use custom execution_id
+    execution_id = StringField(required=True)
     bot_name = StringField(required=True)
     start_time = DateTimeField(default=datetime.utcnow)
     end_time = DateTimeField()
+    # TODO: status choices should come from an enum
     status = StringField(required=True, choices=('pending', 'running', 'completed', 'failed'))
     status_history = ListField(EmbeddedDocumentField(StatusHistory))
     audit_data = ListField(EmbeddedDocumentField(AuditData))

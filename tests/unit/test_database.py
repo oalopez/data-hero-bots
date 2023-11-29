@@ -23,7 +23,7 @@ def test_execution_info(db_connection):
     
     # Create a new ExecutionInfo object
     execution = ExecutionInfo(
-        execution_id=ObjectId(),
+        execution_id='00aa11bb22-1234-abcd-efgh-000000000000',
         bot_name='test_bot',
         start_time=datetime.utcnow(),
         end_time=datetime.utcnow(),

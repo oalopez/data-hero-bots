@@ -45,7 +45,7 @@ class FileData(BaseModel):
     metadata: Optional[str] = None
 
 class ExecutionInfo(BaseModel):
-    execution_id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    execution_id: str
     bot_name: str
     start_time: datetime = Field(default_factory=datetime.utcnow)
     end_time: Optional[datetime] = None
@@ -63,6 +63,7 @@ class ExecutionInfo(BaseModel):
         }
         json_schema_extra = {
             "example": {
+                "execution_id": "123e4567-e89b-12d3-a456-426614174000",
                 "bot_name": "sample_bot",
                 "status": "pending",
                 "status_history": [

@@ -5,6 +5,9 @@ Includes the configuration for the database and the URL to be crawled.
 """
 import os
 
+
+# TODO: Use pydantic BaseSettings for configuration instead of dotenv
+
 # Load environment variables from .env file if present
 from dotenv import load_dotenv
 load_dotenv()

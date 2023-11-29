@@ -11,3 +11,4 @@ requests==2.31.0
 uvicorn==0.24.0.post1
 beautifulsoup4
 flower
+colorlog

@@ -3,13 +3,16 @@
 Contains the Celery tasks to be executed asynchronously.
 """
 # /app/tasks.py
-from celery import Celery
+from celery import Celery, current_task  # Import the Celery instance
 from app.crawler.bot import WebCrawler  # Import your specific web crawling class or method
 from app.models.execution_info_schema import ExecutionInfo, FileData  # Import your ODM model for MongoDB
 from utils.encoders import CustomEncoder  # Import the custom encoder for MongoDB
 from datetime import datetime
 import json
 import config.settings as settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Configure Celery (make sure to appropriately configure Celery elsewhere, e.g., in a separate config file)
 celery_app = Celery('tasks', broker='redis://localhost:6379/0')  # Adjust the broker URL as necessary
@@ -19,9 +22,10 @@ def execute_crawl_task():
     crawler = WebCrawler(bot_name=settings.BOT_NAME, start_url=settings.URL_CRAWLED)  # Instantiate your crawler class
     execution_data = crawler.start_crawl()  # Start the web crawling process
 
-    print("Execution Data: " + json.dumps(execution_data, cls=CustomEncoder))
-
+    logger.info("Execution Data: " + json.dumps(execution_data, cls=CustomEncoder))
+    
     execution_info = ExecutionInfo(
+        execution_id=current_task.request.id,
         bot_name=execution_data['bot_name'],
         status=execution_data['status'], 
         start_time=execution_data['start_time'],
@@ -35,7 +39,9 @@ def execute_crawl_task():
     )
 
     execution_info.save()  # Persist the information to MongoDB
-    print("Data saved to MongoDB")
+    logger.info("Execution Info Saved: " + json.dumps(execution_info.to_mongo().to_dict(), cls=CustomEncoder))
+
+    # TODO: Should we handle the exception here or in the caller?
 
     # No need of the return statement since the data is already persisted to MongoDB
     # and we are not calling this task from another task

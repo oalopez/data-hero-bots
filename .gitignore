@@ -5,3 +5,4 @@ app/crawler/__pycache__/
 dump.rdb
 data/*.csv
 .DS_Store
+app/models/__pycache__/

@@ -16,6 +16,7 @@ class WebCrawler:
     def start_crawl(self):
         # Logic to perform web crawling and extract data
         # In a real-world scenario, this method would be much more complex
+        start_time = datetime.utcnow()
         response = requests.get(self.start_url)
         
         if response.status_code == 200:
@@ -27,7 +28,7 @@ class WebCrawler:
             
             file_path = self.save_data_to_csv()  # Save the data to a CSV file
             return {
-                'start_time': datetime.utcnow(),
+                'start_time': start_time,
                 'end_time': datetime.utcnow(),
                 'file_path': file_path,
                 'url_crawled': self.start_url,
